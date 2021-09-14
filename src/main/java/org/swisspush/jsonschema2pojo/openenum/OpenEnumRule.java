@@ -75,7 +75,7 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
                     Class<?> existingClass = Thread.currentThread().getContextClassLoader().loadClass(fqn);
                     throw new ClassAlreadyExistsException(container.owner().ref(existingClass));
                 } catch (ClassNotFoundException e) {
-                    return container.owner()._class(fqn, ClassType.ENUM);
+                    return container.owner()._class(fqn, ClassType.CLASS);
                 }
             } else {
                 try {
@@ -161,7 +161,7 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
 
                 JFieldVar constant = _enum.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, _enum, constantName);
 
-                constant.init(_enum.staticInvoke(factoryMethod).arg(JExpr.lit(constantName)));
+                constant.init(_enum.staticInvoke(factoryMethod).arg(JExpr.lit(value.asText())));
             }
         }
     }
