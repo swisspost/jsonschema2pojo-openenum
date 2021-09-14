@@ -4,7 +4,7 @@
 
     <groupId>org.swisspush.jsonschema2pojo</groupId>
     <artifactId>jsonschema2pojo-openenum</artifactId>
-    <version>0.1.3-SNAPSHOT</version>
+    <version>0.1.3</version>
     <name>jsonschema2pojo-openenum</name>
     <description>Config Builders for Kafka. A fluent API for configuring kafka clients.</description>
     <url>https://github.com/swisspush/jsonschema2pojo-openenum</url>
