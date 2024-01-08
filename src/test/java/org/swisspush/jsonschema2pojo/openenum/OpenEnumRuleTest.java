@@ -42,8 +42,11 @@ public class OpenEnumRuleTest {
                 "\n" +
                 "package org.swisspush.jsonschema2pojo.openenum;\n" +
                 "\n" +
+                "import java.util.Arrays;\n" +
                 "import java.util.HashMap;\n" +
+                "import java.util.HashSet;\n" +
                 "import java.util.Map;\n" +
+                "import java.util.Set;\n" +
                 "import com.fasterxml.jackson.annotation.JsonCreator;\n" +
                 "import com.fasterxml.jackson.annotation.JsonValue;\n" +
                 "\n" +
@@ -52,6 +55,11 @@ public class OpenEnumRuleTest {
                 "    private final static Map<String, Status> values = new HashMap<String, Status>();\n" +
                 "    public final static Status OPEN = Status.fromString(\"OPEN\");\n" +
                 "    public final static Status CLOSED = Status.fromString(\"CLOSED\");\n" +
+                "    /**\n" +
+                "     * Set containing all enum values declared at compile time.use it in your application to iterate over declared values.\n" +
+                "     * \n" +
+                "     */\n" +
+                "    public final static Set<Status> declaredValues = new HashSet<Status>(Arrays.asList(Status.OPEN, Status.CLOSED));\n" +
                 "    private String value;\n" +
                 "\n" +
                 "    private Status(String value) {\n" +
@@ -68,6 +76,22 @@ public class OpenEnumRuleTest {
                 "    @JsonValue\n" +
                 "    public String toString() {\n" +
                 "        return this.value;\n" +
+                "    }\n" +
+                "\n" +
+                "    /**\n" +
+                "     * returns true if given enum is part of the declared values.use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.\n" +
+                "     * \n" +
+                "     */\n" +
+                "    public static Boolean isDeclaredValue(Status val) {\n" +
+                "        return Status.declaredValues.contains(val);\n" +
+                "    }\n" +
+                "\n" +
+                "    /**\n" +
+                "     * returns true if given enum is NOT part of the declared values.use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.\n" +
+                "     * \n" +
+                "     */\n" +
+                "    public static Boolean isNotDeclaredValue(Status val) {\n" +
+                "        return (!Status.isDeclaredValue(val));\n" +
                 "    }\n" +
                 "\n" +
                 "}" +
@@ -98,8 +122,11 @@ public class OpenEnumRuleTest {
                 "\n" +
                 "package org.swisspush.jsonschema2pojo.openenum;\n" +
                 "\n" +
+                "import java.util.Arrays;\n" +
                 "import java.util.HashMap;\n" +
+                "import java.util.HashSet;\n" +
                 "import java.util.Map;\n" +
+                "import java.util.Set;\n" +
                 "import com.fasterxml.jackson.annotation.JsonCreator;\n" +
                 "import com.fasterxml.jackson.annotation.JsonValue;\n" +
                 "\n" +
@@ -108,6 +135,11 @@ public class OpenEnumRuleTest {
                 "    private final static Map<String, Status> values = new HashMap<String, Status>();\n" +
                 "    public final static Status OPEN = Status.fromString(\"open\");\n" +
                 "    public final static Status CLOSED = Status.fromString(\"closed\");\n" +
+                "    /**\n" +
+                "     * Set containing all enum values declared at compile time.use it in your application to iterate over declared values.\n" +
+                "     * \n" +
+                "     */\n" +
+                "    public final static Set<Status> declaredValues = new HashSet<Status>(Arrays.asList(Status.OPEN, Status.CLOSED));\n" +
                 "    private String value;\n" +
                 "\n" +
                 "    private Status(String value) {\n" +
@@ -124,6 +156,22 @@ public class OpenEnumRuleTest {
                 "    @JsonValue\n" +
                 "    public String toString() {\n" +
                 "        return this.value;\n" +
+                "    }\n" +
+                "\n" +
+                "    /**\n" +
+                "     * returns true if given enum is part of the declared values.use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.\n" +
+                "     * \n" +
+                "     */\n" +
+                "    public static Boolean isDeclaredValue(Status val) {\n" +
+                "        return Status.declaredValues.contains(val);\n" +
+                "    }\n" +
+                "\n" +
+                "    /**\n" +
+                "     * returns true if given enum is NOT part of the declared values.use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.\n" +
+                "     * \n" +
+                "     */\n" +
+                "    public static Boolean isNotDeclaredValue(Status val) {\n" +
+                "        return (!Status.isDeclaredValue(val));\n" +
                 "    }\n" +
                 "\n" +
                 "}" +

@@ -54,10 +54,13 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
                 container.owner().ref(String.class);
 
         JMethod factoryMethod = addFactoryMethod(_enum, backingType);
-        addEnumConstants(node.path("enum"), _enum, node.path("javaEnumNames"), backingType, factoryMethod);
+        List<JFieldVar> enumConstants = addEnumConstants(node.path("enum"), _enum, node.path("javaEnumNames"), backingType, factoryMethod);
+        addEnumConstantsSet(_enum, enumConstants);
         JFieldVar valueField = addValueField(_enum, backingType);
         addToString(_enum, valueField);
-
+        // utility methods to detect non-declared values
+        addStaticMethodIsDeclaredValue(_enum);
+        addStaticMethodIsNotDeclaredValue(_enum);
         return _enum;
     }
 
@@ -149,8 +152,9 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
         return type.fullName().equals(String.class.getName());
     }
 
-    private void addEnumConstants(JsonNode node, JDefinedClass _enum, JsonNode customNames, JType type, JMethod factoryMethod) {
+    private List<JFieldVar> addEnumConstants(JsonNode node, JDefinedClass _enum, JsonNode customNames, JType type, JMethod factoryMethod) {
         Collection<String> existingConstantNames = new ArrayList<>();
+        List<JFieldVar> enumConstants = new ArrayList<>();
         for (int i = 0; i < node.size(); i++) {
             JsonNode value = node.path(i);
 
@@ -162,8 +166,48 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
                 JFieldVar constant = _enum.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, _enum, constantName);
 
                 constant.init(_enum.staticInvoke(factoryMethod).arg(JExpr.lit(value.asText())));
+                enumConstants.add(constant);
             }
         }
+        return enumConstants;
+    }
+
+    private void addEnumConstantsSet(JDefinedClass _enum, List<JFieldVar> enumConstants) {
+        JClass fieldType = _enum.owner().ref(Set.class).narrow(_enum);
+        JFieldVar field = _enum.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, fieldType, "declaredValues");
+        JClass fieldConcreteType = _enum.owner().ref(HashSet.class).narrow(_enum);
+        // Initialize the HashSet using Arrays.asList()
+        JClass arrays = _enum.owner().ref(Arrays.class);
+        JInvocation asListInvocation = arrays.staticInvoke("asList");
+        // Add enum constants to the asListInvocation
+        for (JFieldVar constant : enumConstants) {
+            asListInvocation.arg(_enum.staticRef(constant));
+        }
+        // Initialize the field with a new HashSet created from the list
+        field.init(JExpr._new(fieldConcreteType).arg(asListInvocation));
+
+        field.javadoc().add("Set containing all enum values declared at compile time.");
+        field.javadoc().add("use it in your application to iterate over declared values.");
+    }
+
+    private void addStaticMethodIsDeclaredValue(JDefinedClass _enum) {
+        JMethod method = _enum.method(JMod.PUBLIC | JMod.STATIC, Boolean.class, "isDeclaredValue");
+        JVar valueParam = method.param(_enum, "val");
+        JExpression toReturn = _enum.staticRef("declaredValues").invoke("contains").arg(valueParam);
+        method.body()._return(toReturn);
+
+        method.javadoc().add("returns true if given enum is part of the declared values.");
+        method.javadoc().add("use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.");
+    }
+
+    private void addStaticMethodIsNotDeclaredValue(JDefinedClass _enum) {
+        JMethod method = _enum.method(JMod.PUBLIC | JMod.STATIC, Boolean.class, "isNotDeclaredValue");
+        JVar valueParam = method.param(_enum, "val");
+        JExpression toReturn = JOp.not(_enum.staticInvoke("isDeclaredValue").arg(valueParam));
+        method.body()._return(toReturn);
+
+        method.javadoc().add("returns true if given enum is NOT part of the declared values.");
+        method.javadoc().add("use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.");
     }
 
     private String getEnumName(String nodeName, JsonNode node, JClassContainer container) {
