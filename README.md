@@ -4,7 +4,7 @@ Generate enums as relaxed type-safe enum classes supporting unknown values.
 This allows backward compatibility when JSON schemas get new enum values 
 whereas existing code does not yet know them.
 
-Methods are in place to detect values not yet known to an application.
+Enum classes have methods to detect values not yet known to an application.
 
 The generated code looks like:
 

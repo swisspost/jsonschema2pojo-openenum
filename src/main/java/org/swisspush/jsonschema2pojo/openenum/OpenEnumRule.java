@@ -55,7 +55,7 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
 
         JMethod factoryMethod = addFactoryMethod(_enum, backingType);
         List<JFieldVar> enumConstants = addEnumConstants(node.path("enum"), _enum, node.path("javaEnumNames"), backingType, factoryMethod);
-        addEnumConstantsSet(_enum, enumConstants);
+        addConstantDeclaredValues(_enum, enumConstants);
         JFieldVar valueField = addValueField(_enum, backingType);
         addToString(_enum, valueField);
         // utility methods to detect non-declared values
@@ -172,16 +172,23 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
         return enumConstants;
     }
 
-    private void addEnumConstantsSet(JDefinedClass _enum, List<JFieldVar> enumConstants) {
-        JClass fieldType = _enum.owner().ref(Set.class).narrow(_enum);
-        JFieldVar field = _enum.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, fieldType, "declaredValues");
-        JClass fieldConcreteType = _enum.owner().ref(HashSet.class).narrow(_enum);
+    /**
+     * Adds new constant declaredValues, which is a Set containing all enum value constants
+     * (i.e.: all enum values known at compile time).
+     *
+     * @param enumClass
+     * @param enumConstants
+     */
+    private void addConstantDeclaredValues(JDefinedClass enumClass, List<JFieldVar> enumConstants) {
+        JClass fieldType = enumClass.owner().ref(Set.class).narrow(enumClass);
+        JFieldVar field = enumClass.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, fieldType, "declaredValues");
+        JClass fieldConcreteType = enumClass.owner().ref(HashSet.class).narrow(enumClass);
         // Initialize the HashSet using Arrays.asList()
-        JClass arrays = _enum.owner().ref(Arrays.class);
+        JClass arrays = enumClass.owner().ref(Arrays.class);
         JInvocation asListInvocation = arrays.staticInvoke("asList");
         // Add enum constants to the asListInvocation
         for (JFieldVar constant : enumConstants) {
-            asListInvocation.arg(_enum.staticRef(constant));
+            asListInvocation.arg(enumClass.staticRef(constant));
         }
         // Initialize the field with a new HashSet created from the list
         field.init(JExpr._new(fieldConcreteType).arg(asListInvocation));
