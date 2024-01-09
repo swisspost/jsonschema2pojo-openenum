@@ -24,6 +24,18 @@ public class StatusTest {
     }
 
     @Test
+    public void declaredValuesIsNotAffectedByFromStringCalls() {
+        assertEquals(2, Status.declaredValues.size());
+        Status.fromString("OTHER");
+        assertEquals(2, Status.declaredValues.size());
+    }
+
+    @Test
+    public void iterateDeclaredValues() {
+        Status.declaredValues.forEach(System.out::println);
+    }
+
+    @Test
     public void isNotDeclaredValue() {
         assertFalse(Status.isNotDeclaredValue(Status.OPEN));
         assertFalse(Status.isNotDeclaredValue(Status.CLOSED));
