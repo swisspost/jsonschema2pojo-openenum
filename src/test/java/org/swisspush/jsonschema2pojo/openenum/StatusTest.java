@@ -11,8 +11,6 @@ public class StatusTest {
         assertNotSame(Status.CLOSED, Status.OPEN);
         assertNotSame(Status.CLOSED, Status.fromString("OTHER"));
         assertEquals(Status.OPEN.toString(), "OPEN");
-        Status s = Status.fromString(null);
-        System.out.println(s);
     }
 
     @Test

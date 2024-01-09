@@ -53,7 +53,7 @@ public class Status {
      * returns true if this enum is part of the declared values. Use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.
      *
      */
-    public Boolean isDeclaredValue() {
+    public boolean isDeclaredValue() {
         return Status.declaredValues.contains(this);
     }
 
