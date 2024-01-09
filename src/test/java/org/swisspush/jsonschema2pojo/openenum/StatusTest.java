@@ -33,12 +33,12 @@ public class StatusTest {
     }
 
     @Test
-    public void isNotDeclaredValue() {
-        assertFalse(Status.OPEN.isNotDeclaredValue());
-        assertFalse(Status.CLOSED.isNotDeclaredValue());
-        assertFalse(Status.fromString("OPEN").isNotDeclaredValue());
-        assertFalse(Status.fromString("CLOSED").isNotDeclaredValue());
-        assertTrue(Status.fromString("NOT_DECLARED_VALUE").isNotDeclaredValue());
-        assertTrue(Status.fromString("OTHER").isNotDeclaredValue());
+    public void isDeclaredValue() {
+        assertTrue(Status.OPEN.isDeclaredValue());
+        assertTrue(Status.CLOSED.isDeclaredValue());
+        assertTrue(Status.fromString("OPEN").isDeclaredValue());
+        assertTrue(Status.fromString("CLOSED").isDeclaredValue());
+        assertFalse(Status.fromString("NOT_DECLARED_VALUE").isDeclaredValue());
+        assertFalse(Status.fromString("OTHER").isDeclaredValue());
     }
 }

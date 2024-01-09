@@ -58,7 +58,7 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
         addConstantDeclaredValues(_enum, enumConstants);
         JFieldVar valueField = addValueField(_enum, backingType);
         addToString(_enum, valueField);
-        addMethodIsNotDeclaredValue(_enum);
+        addMethodIsDeclaredValue(_enum);
         return _enum;
     }
 
@@ -201,12 +201,12 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
         field.javadoc().add(" Use it in your application to iterate over declared values.");
     }
 
-    private void addMethodIsNotDeclaredValue(JDefinedClass _enum) {
-        JMethod method = _enum.method(JMod.PUBLIC, Boolean.class, "isNotDeclaredValue");
-        JExpression toReturn = JOp.not(_enum.staticRef("declaredValues").invoke("contains").arg(JExpr._this()));
+    private void addMethodIsDeclaredValue(JDefinedClass _enum) {
+        JMethod method = _enum.method(JMod.PUBLIC, Boolean.class, "isDeclaredValue");
+        JExpression toReturn = _enum.staticRef("declaredValues").invoke("contains").arg(JExpr._this());
         method.body()._return(toReturn);
 
-        method.javadoc().add("returns true if this enum is NOT part of the declared values.");
+        method.javadoc().add("returns true if this enum is part of the declared values.");
         method.javadoc().add(" Use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.");
     }
 
