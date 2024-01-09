@@ -11,16 +11,8 @@ public class StatusTest {
         assertNotSame(Status.CLOSED, Status.OPEN);
         assertNotSame(Status.CLOSED, Status.fromString("OTHER"));
         assertEquals(Status.OPEN.toString(), "OPEN");
-    }
-
-    @Test
-    public void isDeclaredValue() {
-        assertTrue(Status.isDeclaredValue(Status.OPEN));
-        assertTrue(Status.isDeclaredValue(Status.CLOSED));
-        assertTrue(Status.isDeclaredValue(Status.fromString("OPEN")));
-        assertTrue(Status.isDeclaredValue(Status.fromString("CLOSED")));
-        assertFalse(Status.isDeclaredValue(Status.fromString("NOT_DECLARED_VALUE")));
-        assertFalse(Status.isDeclaredValue(Status.fromString("OTHER")));
+        Status s = Status.fromString(null);
+        System.out.println(s);
     }
 
     @Test
@@ -30,6 +22,11 @@ public class StatusTest {
         assertEquals(2, Status.declaredValues.size());
     }
 
+    @Test(expected = UnsupportedOperationException.class)
+    public void declaredValuesIsNotModifiable() {
+        Status.declaredValues.add(Status.fromString("UNKNOWN"));
+    }
+
     @Test
     public void iterateDeclaredValues() {
         Status.declaredValues.forEach(System.out::println);
@@ -37,11 +34,11 @@ public class StatusTest {
 
     @Test
     public void isNotDeclaredValue() {
-        assertFalse(Status.isNotDeclaredValue(Status.OPEN));
-        assertFalse(Status.isNotDeclaredValue(Status.CLOSED));
-        assertFalse(Status.isNotDeclaredValue(Status.fromString("OPEN")));
-        assertFalse(Status.isNotDeclaredValue(Status.fromString("CLOSED")));
-        assertTrue(Status.isNotDeclaredValue(Status.fromString("NOT_DECLARED_VALUE")));
-        assertTrue(Status.isNotDeclaredValue(Status.fromString("OTHER")));
+        assertFalse(Status.OPEN.isNotDeclaredValue());
+        assertFalse(Status.CLOSED.isNotDeclaredValue());
+        assertFalse(Status.fromString("OPEN").isNotDeclaredValue());
+        assertFalse(Status.fromString("CLOSED").isNotDeclaredValue());
+        assertTrue(Status.fromString("NOT_DECLARED_VALUE").isNotDeclaredValue());
+        assertTrue(Status.fromString("OTHER").isNotDeclaredValue());
     }
 }

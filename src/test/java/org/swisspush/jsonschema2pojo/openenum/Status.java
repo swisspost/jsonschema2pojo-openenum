@@ -11,10 +11,10 @@ public class Status {
     public final static Status OPEN = Status.fromString("OPEN");
     public final static Status CLOSED = Status.fromString("CLOSED");
     /**
-     * Set containing all enum values declared at compile time.use it in your application to iterate over declared values.
+     * Set containing all enum values declared at compile time. Use it in your application to iterate over declared values.
      *
      */
-    public final static Set<Status> declaredValues = new HashSet<Status>(Arrays.asList(Status.OPEN, Status.CLOSED));
+    public final static Set<Status> declaredValues = Collections.unmodifiableSet(new HashSet<Status>(Arrays.asList(Status.OPEN, Status.CLOSED)));
     private String value;
 
     private Status(String value) {
@@ -34,18 +34,10 @@ public class Status {
     }
 
     /**
-     * returns true if given enum is part of the declared values.use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.
+     * returns true if this enum is NOT part of the declared values. Use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.
      *
      */
-    public static Boolean isDeclaredValue(Status val) {
-        return Status.declaredValues.contains(val);
-    }
-
-    /**
-     * returns true if given enum is NOT part of the declared values.use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.
-     *
-     */
-    public static Boolean isNotDeclaredValue(Status val) {
-        return !isDeclaredValue(val);
+    public Boolean isNotDeclaredValue() {
+        return (!Status.declaredValues.contains(this));
     }
 }
