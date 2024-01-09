@@ -5,7 +5,7 @@ This allows backward compatibility when JSON schemas get new enum values
 whereas existing code does not yet know them.
 
 Public constant `declaredValues` allows to iterate on values known at compile time.
-Instance method `isNotDeclaredValue` allows to detect values not yet known at compile time to an application.
+Instance method `isDeclaredValue` allows to detect values not yet known at compile time to an application.
 
 The generated code looks like:
 
@@ -50,11 +50,11 @@ public class Status {
     }
 
     /**
-     * returns true if this enum is NOT part of the declared values. Use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.
+     * returns true if this enum is part of the declared values. Use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.
      *
      */
-    public Boolean isNotDeclaredValue() {
-        return (!Status.declaredValues.contains(this));
+    public Boolean isDeclaredValue() {
+        return Status.declaredValues.contains(this);
     }
 
 }
