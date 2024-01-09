@@ -202,7 +202,7 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
     }
 
     private void addMethodIsDeclaredValue(JDefinedClass _enum) {
-        JMethod method = _enum.method(JMod.PUBLIC, Boolean.class, "isDeclaredValue");
+        JMethod method = _enum.method(JMod.PUBLIC, boolean.class, "isDeclaredValue");
         JExpression toReturn = _enum.staticRef("declaredValues").invoke("contains").arg(JExpr._this());
         method.body()._return(toReturn);
 

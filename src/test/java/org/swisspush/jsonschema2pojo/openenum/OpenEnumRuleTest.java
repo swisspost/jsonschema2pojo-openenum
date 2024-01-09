@@ -83,7 +83,7 @@ public class OpenEnumRuleTest {
                 "     * returns true if this enum is part of the declared values. Use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.\n" +
                 "     * \n" +
                 "     */\n" +
-                "    public Boolean isDeclaredValue() {\n" +
+                "    public boolean isDeclaredValue() {\n" +
                 "        return Status.declaredValues.contains(this);\n" +
                 "    }\n" +
                 "\n" +
@@ -156,7 +156,7 @@ public class OpenEnumRuleTest {
                 "     * returns true if this enum is part of the declared values. Use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.\n" +
                 "     * \n" +
                 "     */\n" +
-                "    public Boolean isDeclaredValue() {\n" +
+                "    public boolean isDeclaredValue() {\n" +
                 "        return Status.declaredValues.contains(this);\n" +
                 "    }\n" +
                 "\n" +
