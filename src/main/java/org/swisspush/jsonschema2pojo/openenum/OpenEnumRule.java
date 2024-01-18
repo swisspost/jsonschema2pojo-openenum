@@ -54,10 +54,11 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
                 container.owner().ref(String.class);
 
         JMethod factoryMethod = addFactoryMethod(_enum, backingType);
-        addEnumConstants(node.path("enum"), _enum, node.path("javaEnumNames"), backingType, factoryMethod);
+        List<JFieldVar> enumConstants = addEnumConstants(node.path("enum"), _enum, node.path("javaEnumNames"), backingType, factoryMethod);
+        addConstantDeclaredValues(_enum, enumConstants);
         JFieldVar valueField = addValueField(_enum, backingType);
         addToString(_enum, valueField);
-
+        addMethodIsDeclaredValue(_enum);
         return _enum;
     }
 
@@ -149,8 +150,9 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
         return type.fullName().equals(String.class.getName());
     }
 
-    private void addEnumConstants(JsonNode node, JDefinedClass _enum, JsonNode customNames, JType type, JMethod factoryMethod) {
+    private List<JFieldVar> addEnumConstants(JsonNode node, JDefinedClass _enum, JsonNode customNames, JType type, JMethod factoryMethod) {
         Collection<String> existingConstantNames = new ArrayList<>();
+        List<JFieldVar> enumConstants = new ArrayList<>();
         for (int i = 0; i < node.size(); i++) {
             JsonNode value = node.path(i);
 
@@ -162,8 +164,50 @@ public class OpenEnumRule implements Rule<JClassContainer, JType> {
                 JFieldVar constant = _enum.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, _enum, constantName);
 
                 constant.init(_enum.staticInvoke(factoryMethod).arg(JExpr.lit(value.asText())));
+                enumConstants.add(constant);
             }
         }
+        return enumConstants;
+    }
+
+    /**
+     * Adds new constant declaredValues, which is a Set containing all enum value constants
+     * (i.e.: all enum values known at compile time).
+     *
+     * @param enumClass
+     * @param enumConstants
+     */
+    private void addConstantDeclaredValues(JDefinedClass enumClass, List<JFieldVar> enumConstants) {
+        JClass fieldType = enumClass.owner().ref(Set.class).narrow(enumClass);
+        JFieldVar field = enumClass.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, fieldType, "declaredValues");
+        JClass fieldConcreteType = enumClass.owner().ref(HashSet.class).narrow(enumClass);
+
+        JInvocation arraysAsListInvocation = enumClass.owner().ref(Arrays.class).staticInvoke("asList");
+        // Add enum constants to the asListInvocation
+        for (JFieldVar constant : enumConstants) {
+            arraysAsListInvocation.arg(enumClass.staticRef(constant));
+        }
+
+        // construct HashSet using Arrays.asList()
+        JInvocation hashSetConstructorInvocation = JExpr._new(fieldConcreteType).arg(arraysAsListInvocation);
+
+        // wrap HashSet into UnmodifiableSet
+        JInvocation unmodifiableSetInvocation = enumClass.owner().ref(Collections.class).staticInvoke("unmodifiableSet").arg(hashSetConstructorInvocation);
+
+        // Initialize the field to unmodifiable set
+        field.init(unmodifiableSetInvocation);
+
+        field.javadoc().add("Set containing all enum values declared at compile time.");
+        field.javadoc().add(" Use it in your application to iterate over declared values.");
+    }
+
+    private void addMethodIsDeclaredValue(JDefinedClass _enum) {
+        JMethod method = _enum.method(JMod.PUBLIC, boolean.class, "isDeclaredValue");
+        JExpression toReturn = _enum.staticRef("declaredValues").invoke("contains").arg(JExpr._this());
+        method.body()._return(toReturn);
+
+        method.javadoc().add("returns true if this enum is part of the declared values.");
+        method.javadoc().add(" Use it in your application to detect when values coming from outside of the app are not yet part of the declared values (i.e.: there is a new version of the enum that your application is not yet aware of.");
     }
 
     private String getEnumName(String nodeName, JsonNode node, JClassContainer container) {
